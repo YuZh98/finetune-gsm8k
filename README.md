@@ -57,11 +57,11 @@ The code is built for Google Colab. A100 recommended; T4 viable for a subset of 
 %cd finetune-gsm8k
 !pip install -r requirements.txt
 
-# Train one configuration (e.g., the center config, Run 2)
-!python src/train.py --rank 16 --alpha 32 --target attn --lr 2e-4 --data 20000
+# Train one configuration (e.g., the center config, Run 2 -> run_id "run2_r16")
+!python src/train.py --rank 16 --alpha 32 --target attn --lr 2e-4 --data 20000 --output ./runs/run2_r16
 
 # Evaluate the adapter on GSM8K test
-!python src/eval_gsm8k.py --adapter ./runs/r16_attn_lr2e-4_20k/adapter
+!python src/eval_gsm8k.py --adapter ./runs/run2_r16/adapter
 ```
 
 Notebook front-ends live in `notebooks/`.
@@ -70,9 +70,11 @@ Notebook front-ends live in `notebooks/`.
 
 ```
 src/
-  config.py          # All hyperparameters and constants
+  config.py          # All hyperparameters and constants (incl. ABLATION_MATRIX)
+  data.py            # MetaMathQA loading + chat-template formatting
+  utils.py           # Shared model/tokenizer/adapter loading + answer extraction
   train.py           # Single entrypoint, CLI args per ablation knob
-  eval_gsm8k.py      # Exact-match scorer + answer extraction
+  eval_gsm8k.py      # Exact-match scorer
 notebooks/
   01_train.ipynb     # Parameterized Colab training notebook
   02_eval.ipynb      # Eval harness front-end

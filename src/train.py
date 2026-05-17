@@ -121,7 +121,7 @@ def train_one_run(
         model=model,
         args=sft_config,
         train_dataset=dataset,
-        tokenizer=tokenizer,
+        processing_class=tokenizer,
         peft_config=lora_config,
     )
 

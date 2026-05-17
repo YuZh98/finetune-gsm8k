@@ -19,6 +19,7 @@ from __future__ import annotations
 
 import argparse
 import csv
+import gc
 import time
 from pathlib import Path
 from typing import Optional
@@ -33,13 +34,9 @@ from .config import (
     EVAL_CONFIG,
     EVAL_DATASET,
     EVAL_MAX_NEW_TOKENS,
+    PROMPT_PREFIX,
 )
 from .utils import answers_match, extract_answer, load_model_for_eval, load_tokenizer
-
-PROMPT_PREFIX = (
-    "Solve the following math problem step by step. "
-    "End your answer with the marker `#### N` where N is the final numeric answer.\n\n"
-)
 
 
 def parse_args() -> argparse.Namespace:
@@ -141,6 +138,10 @@ def evaluate(
 
     elapsed = time.time() - start
     accuracy = correct / total if total else 0.0
+    del model
+    gc.collect()
+    if torch.cuda.is_available():
+        torch.cuda.empty_cache()
     return {
         "n_problems": total,
         "n_correct": correct,

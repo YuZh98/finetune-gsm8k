@@ -41,6 +41,10 @@ DEFAULT_MAX_SEQ_LENGTH = 1024
 EVAL_MAX_NEW_TOKENS = 512
 EVAL_BATCH_SIZE = 8
 ANSWER_REGEX = r"####\s*(-?\d+(?:\.\d+)?)"
+PROMPT_PREFIX = (
+    "Solve the following math problem step by step. "
+    "End your answer with the marker `#### N` where N is the final numeric answer.\n\n"
+)
 
 
 @dataclass
