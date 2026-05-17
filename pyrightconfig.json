@@ -1,0 +1,6 @@
+{
+  "reportMissingImports": "none",
+  "reportMissingTypeStubs": "none",
+  "venvPath": ".",
+  "venv": ".venv"
+}
