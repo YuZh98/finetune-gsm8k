@@ -110,7 +110,7 @@ def train_one_run(
         fp16=(compute_dtype.__str__() == "torch.float16"),
         optim="paged_adamw_8bit",
         max_grad_norm=DEFAULT_MAX_GRAD_NORM,
-        max_seq_length=DEFAULT_MAX_SEQ_LENGTH,
+        max_length=DEFAULT_MAX_SEQ_LENGTH,
         logging_steps=20,
         save_strategy="no",
         report_to="none",
