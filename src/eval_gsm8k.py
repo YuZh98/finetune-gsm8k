@@ -29,7 +29,7 @@ from datasets import load_dataset
 from tqdm import tqdm
 
 from .config import (
-    ANSWER_REGEX,
+    ANSWER_EXTRACTOR_VERSION,
     EVAL_BATCH_SIZE,
     EVAL_CONFIG,
     EVAL_DATASET,
@@ -167,7 +167,7 @@ def main() -> None:
     row = {
         "run_id": args.run_id,
         "adapter": args.adapter or "",
-        "answer_regex": ANSWER_REGEX,
+        "extractor": ANSWER_EXTRACTOR_VERSION,
         **metrics,
     }
     append_row(args.output, row)

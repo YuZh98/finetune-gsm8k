@@ -1,17 +1,30 @@
-"""Shared utilities: model loading, adapter handling, answer extraction."""
+"""Shared utilities: model loading and adapter handling.
+
+Answer extraction lives in `answer_parsing` so it can be unit-tested
+without importing torch. The names are reexported here so existing
+callers (eval_gsm8k) keep working unchanged.
+"""
 
 from __future__ import annotations
 
-import re
 from typing import Optional
 
 import torch
 from peft import PeftModel
 from transformers import AutoModelForCausalLM, AutoTokenizer, BitsAndBytesConfig
 
-from .config import ANSWER_REGEX, BASE_MODEL
+from .answer_parsing import answers_match, extract_answer
+from .config import BASE_MODEL
 
-_ANSWER_RE = re.compile(ANSWER_REGEX)
+__all__ = [
+    "answers_match",
+    "bnb_config",
+    "extract_answer",
+    "load_base_model",
+    "load_model_for_eval",
+    "load_tokenizer",
+    "pick_compute_dtype",
+]
 
 
 def bnb_config(compute_dtype: torch.dtype) -> BitsAndBytesConfig:
@@ -57,23 +70,3 @@ def load_model_for_eval(adapter_path: Optional[str]) -> AutoModelForCausalLM:
     return model
 
 
-def extract_answer(text: str) -> Optional[str]:
-    """Extract the final numeric answer from a GSM8K-style response.
-
-    Matches the standard `#### <number>` marker. Returns the number as a
-    string (preserving sign and decimal) or None if no match.
-    """
-    matches = _ANSWER_RE.findall(text)
-    if not matches:
-        return None
-    return matches[-1].strip()
-
-
-def answers_match(predicted: Optional[str], gold: Optional[str]) -> bool:
-    """Compare two extracted numeric answers as floats, tolerating trailing zeros."""
-    if predicted is None or gold is None:
-        return False
-    try:
-        return abs(float(predicted) - float(gold)) < 1e-6
-    except ValueError:
-        return predicted.strip() == gold.strip()

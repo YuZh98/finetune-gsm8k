@@ -40,7 +40,9 @@ DEFAULT_MAX_SEQ_LENGTH = 1024
 # Eval defaults
 EVAL_MAX_NEW_TOKENS = 512
 EVAL_BATCH_SIZE = 8
-ANSWER_REGEX = r"####\s*(-?\d+(?:\.\d+)?)"
+# Recorded per-row in results CSV so we can tell when the extractor was changed.
+# Bump when answer_parsing.py adds or reorders patterns.
+ANSWER_EXTRACTOR_VERSION = "multi-pattern-v1"
 PROMPT_PREFIX = (
     "Solve the following math problem step by step. "
     "End your answer with the marker `#### N` where N is the final numeric answer.\n\n"
