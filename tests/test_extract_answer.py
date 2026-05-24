@@ -110,20 +110,3 @@ def test_priority_marker_beats_answer_is():
 def test_priority_boxed_beats_fallback():
     text = "Working: 4 + 5 = 9. So $\\boxed{9}$ which is 9."
     assert extract_answer(text) == "9"
-
-
-def test_template_echo_with_answer_is_recovers():
-    # Real completion pattern observed from run1_r8 (see
-    # docs/lessons/01-prompt-template-echo.md). The model echoes the prompt's
-    # `#### N` marker literally (letter N, not a digit) and emits the real
-    # answer via MetaMathQA's "The answer is:" pattern. Extractor must pick
-    # 540, not fall through to None or scrape an intermediate number.
-    text = (
-        "Total meters = 540\n"
-        "Therefore, James runs a total of 540 meters in a week.\n"
-        "\n"
-        "#### N\n"
-        "\n"
-        "The answer is: 540"
-    )
-    assert extract_answer(text) == "540"

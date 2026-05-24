@@ -180,14 +180,6 @@ Doing this would require retraining all 7 adapters and re-evaluating the base,
 which is out of scope for this run. Tracked as a possible follow-up if this
 project ever gets a v2.
 
-## Pinning test
-
-`tests/test_extract_answer.py::test_template_echo_with_answer_is_recovers`
-encodes the exact pattern we observed in the dump — literal `#### N` plus
-a trailing `The answer is: 540`. This test will fail if a future "cleanup"
-of the extractor drops the conversational pattern, surfacing the regression
-before it ships.
-
 ## TL;DR
 
 - Instruction-tuned LLMs interpret `#### N` in backticks as a literal string

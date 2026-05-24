@@ -72,8 +72,7 @@ Notebook front-ends live in `notebooks/`.
 src/
   config.py          # All hyperparameters and constants (incl. ABLATION_MATRIX)
   data.py            # MetaMathQA loading + chat-template formatting
-  utils.py           # Model/tokenizer/adapter loading (reexports answer_parsing)
-  answer_parsing.py  # Multi-pattern numeric answer extractor (torch-free)
+  utils.py           # Shared model/tokenizer/adapter loading + answer extraction
   train.py           # Single entrypoint, CLI args per ablation knob
   eval_gsm8k.py      # Exact-match scorer
 notebooks/
@@ -82,22 +81,9 @@ notebooks/
 results/
   runs.csv           # One row per run: hparams + eval metrics
   plots/             # Loss curves, ablation bar chart
-tests/
-  test_extract_answer.py  # Pinning tests for the answer extractor
 docs/
   design.md          # Frozen spec, snapshot at completion
-  lessons/           # Didactic write-ups of gotchas discovered along the way
 ```
-
-## Lessons learned
-
-Real surprises discovered while running this project, written up as
-beginner-friendly didactic notes:
-
-- [01 — Prompt template echo](docs/lessons/01-prompt-template-echo.md): why
-  the model writes `#### N` (literal letter N) instead of the number, how
-  this broke the original eval, and what a 44-point accuracy swing from a
-  regex change taught us about answer extraction.
 
 ## Companion documents
 

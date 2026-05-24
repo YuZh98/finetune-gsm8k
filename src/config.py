@@ -43,10 +43,6 @@ EVAL_BATCH_SIZE = 8
 # Recorded per-row in results CSV so we can tell when the extractor was changed.
 # Bump when answer_parsing.py adds or reorders patterns.
 ANSWER_EXTRACTOR_VERSION = "multi-pattern-v1"
-# Known gotcha: the `#### N` metavariable is sometimes echoed literally by
-# instruction-tuned models (the model emits the letter N, not a digit). The
-# multi-pattern extractor in answer_parsing.py recovers via the "answer is"
-# pattern that MetaMathQA reinforces. See docs/lessons/01-prompt-template-echo.md.
 PROMPT_PREFIX = (
     "Solve the following math problem step by step. "
     "End your answer with the marker `#### N` where N is the final numeric answer.\n\n"
