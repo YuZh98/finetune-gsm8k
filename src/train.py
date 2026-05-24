@@ -59,6 +59,12 @@ def parse_args() -> argparse.Namespace:
         default=DEFAULT_GRAD_ACCUM,
         help="Gradient accumulation steps",
     )
+    parser.add_argument(
+        "--seed",
+        type=int,
+        default=SEED,
+        help="Training seed. Override to measure seed variance.",
+    )
     return parser.parse_args()
 
 
@@ -76,6 +82,7 @@ def train_one_run(
     epochs: int = DEFAULT_EPOCHS,
     batch_size: int = DEFAULT_BATCH_SIZE,
     grad_accum: int = DEFAULT_GRAD_ACCUM,
+    seed: int = SEED,
 ) -> None:
     """Run a single QLoRA SFT job and save the adapter to <output_dir>/adapter."""
     out = Path(output_dir)
@@ -114,7 +121,7 @@ def train_one_run(
         logging_steps=20,
         save_strategy="no",
         report_to="none",
-        seed=SEED,
+        seed=seed,
     )
 
     trainer = SFTTrainer(
@@ -126,6 +133,10 @@ def train_one_run(
     )
 
     trainer.train()
+    # Dump in-memory log_history (per-step loss, lr, grad_norm) to
+    # <output>/trainer_state.json. Works regardless of save_strategy.
+    # Without this the loss curve is lost the moment the process exits.
+    trainer.save_state()
     trainer.model.save_pretrained(str(adapter_dir))
     tokenizer.save_pretrained(str(adapter_dir))
     print(f"Adapter saved to: {adapter_dir}")
@@ -143,6 +154,7 @@ def main() -> None:
         epochs=args.epochs,
         batch_size=args.batch_size,
         grad_accum=args.grad_accum,
+        seed=args.seed,
     )
 
 
