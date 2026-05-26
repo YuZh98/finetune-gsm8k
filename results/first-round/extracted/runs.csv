@@ -1,0 +1,15 @@
+run_id,adapter,answer_regex,n_problems,n_correct,accuracy,elapsed_sec
+run0_base,,####\s*(-?\d+(?:\.\d+)?),1319,492,0.3730098559514784,8372.2
+run1_r8,/content/drive/MyDrive/finetune-gsm8k-runs/run1_r8/adapter,####\s*(-?\d+(?:\.\d+)?),1319,549,0.4162244124336619,7119.6
+run0_base,,####\s*(-?\d+(?:\.\d+)?),1319,492,0.3730098559514784,8452.1
+run1_r8,/content/drive/MyDrive/finetune-gsm8k-runs/run1_r8/adapter,####\s*(-?\d+(?:\.\d+)?),1319,549,0.4162244124336619,7123.5
+run2_r16,/content/drive/MyDrive/finetune-gsm8k-runs/run2_r16/adapter,####\s*(-?\d+(?:\.\d+)?),1319,446,0.33813495072024263,8245.4
+run0_base,,multi-pattern-v1,1319,1071,0.8119787717968158,8384.2
+run1_r8,/content/drive/MyDrive/finetune-gsm8k-runs/run1_r8/adapter,multi-pattern-v1,1319,961,0.7285822592873389,7102.9
+run2_r16,/content/drive/MyDrive/finetune-gsm8k-runs/run2_r16/adapter,multi-pattern-v1,1319,829,0.6285064442759667,8198.9
+run3_r64,/content/drive/MyDrive/finetune-gsm8k-runs/run3_r64/adapter,multi-pattern-v1,1319,943,0.7149355572403336,7494.8
+run4_mlp,/content/drive/MyDrive/finetune-gsm8k-runs/run4_mlp/adapter,multi-pattern-v1,1319,808,0.6125852918877938,8757.9
+run5_lr_low,/content/drive/MyDrive/finetune-gsm8k-runs/run5_lr_low/adapter,multi-pattern-v1,1319,932,0.7065959059893859,7819.8
+run6_lr_high,/content/drive/MyDrive/finetune-gsm8k-runs/run6_lr_high/adapter,multi-pattern-v1,1319,937,0.7103866565579985,6858.2
+run7_data5k,/content/drive/MyDrive/finetune-gsm8k-runs/run7_data5k/adapter,multi-pattern-v1,1319,951,0.7210007581501138,7300.4
+run2_r16_seed43,/content/drive/MyDrive/finetune-gsm8k-runs/run2_r16_seed43/adapter,multi-pattern-v1,1319,911,0.690674753601213,7541.4

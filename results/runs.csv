@@ -1,0 +1,4 @@
+run_id,base_model,seed,rank,alpha,target_modules,lr,data_size,n_problems,n_correct,accuracy,extractor_version,elapsed_sec,notes
+run0_base,Qwen/Qwen2.5-3B-Instruct,,0,0,,,0,1319,1071,0.8120,multi-pattern-v1,,Baseline (instruct). Pre-fallback.
+run2_r16,Qwen/Qwen2.5-3B-Instruct,42,16,32,"q_proj,v_proj",2e-4,20000,1319,829,0.6285,multi-pattern-v1,,Center config. Regresses vs base.
+run2_r16_seed43,Qwen/Qwen2.5-3B-Instruct,43,16,32,"q_proj,v_proj",2e-4,20000,1319,911,0.6907,multi-pattern-v1,,Seed variance run. +6.2pp vs seed=42; still −12pp vs base. Triggered ADR-0001.
