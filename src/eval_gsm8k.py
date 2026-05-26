@@ -4,15 +4,20 @@ Loads the base model (in 4-bit) optionally with a LoRA adapter on top,
 generates greedy answers on the GSM8K test set, regex-extracts the final
 numeric answer, scores exact-match, and appends a row to results/runs.csv.
 
+When ``--save_predictions`` is passed, also writes a per-question JSONL
+to ``results/predictions/{run_id}.jsonl`` (or the path given by
+``--predictions_path``). Each line is one record; see ``make_record``.
+
 Usage (CLI):
     # Base model
     python src/eval_gsm8k.py --output results/runs.csv
 
-    # Adapter on top of base
+    # Adapter on top of base + per-question dump
     python src/eval_gsm8k.py \
         --adapter ./runs/run2_r16/adapter \
         --run_id run2_r16 \
-        --output results/runs.csv
+        --output results/runs.csv \
+        --save_predictions
 """
 
 from __future__ import annotations
@@ -20,9 +25,12 @@ from __future__ import annotations
 import argparse
 import csv
 import gc
+import logging
 import time
 from pathlib import Path
 from typing import Optional
+
+logger = logging.getLogger(__name__)
 
 import torch
 from datasets import load_dataset
@@ -36,7 +44,8 @@ from .config import (
     EVAL_MAX_NEW_TOKENS,
     PROMPT_PREFIX,
 )
-from .utils import answers_match, extract_answer, load_model_for_eval, load_tokenizer
+from .predictions import make_record, write_predictions_jsonl
+from .utils import extract_answer, load_model_for_eval, load_tokenizer
 
 
 def parse_args() -> argparse.Namespace:
@@ -70,6 +79,17 @@ def parse_args() -> argparse.Namespace:
         type=int,
         default=EVAL_BATCH_SIZE,
         help="Generation batch size",
+    )
+    parser.add_argument(
+        "--save_predictions",
+        action="store_true",
+        help="Write per-question JSONL of predictions for analysis",
+    )
+    parser.add_argument(
+        "--predictions_path",
+        type=str,
+        default=None,
+        help="Override JSONL path (default: results/predictions/{run_id}.jsonl)",
     )
     return parser.parse_args()
 
@@ -109,7 +129,8 @@ def evaluate(
     adapter_path: Optional[str],
     limit: Optional[int],
     batch_size: int,
-) -> dict:
+) -> tuple[dict, list[dict]]:
+    """Run eval. Returns (aggregate metrics, per-question records)."""
     tokenizer = load_tokenizer(padding_side="left")  # left for generation
     model = load_model_for_eval(adapter_path)
 
@@ -123,31 +144,31 @@ def evaluate(
 
     prompts = build_prompts(tokenizer, questions)
 
-    correct = 0
+    records: list[dict] = []
     total = len(prompts)
     start = time.time()
 
     for i in tqdm(range(0, total, batch_size), desc="GSM8K eval"):
         batch_prompts = prompts[i : i + batch_size]
-        batch_gold = gold[i : i + batch_size]
         completions = generate_batch(model, tokenizer, batch_prompts, EVAL_MAX_NEW_TOKENS)
-        for pred_text, g in zip(completions, batch_gold):
-            pred = extract_answer(pred_text)
-            if answers_match(pred, g):
-                correct += 1
+        for j, pred_text in enumerate(completions):
+            idx = i + j
+            records.append(make_record(idx, questions[idx], gold[idx], pred_text))
 
     elapsed = time.time() - start
+    correct = sum(1 for r in records if r["correct"])
     accuracy = correct / total if total else 0.0
     del model
     gc.collect()
     if torch.cuda.is_available():
         torch.cuda.empty_cache()
-    return {
+    metrics = {
         "n_problems": total,
         "n_correct": correct,
         "accuracy": accuracy,
         "elapsed_sec": round(elapsed, 1),
     }
+    return metrics, records
 
 
 def append_row(csv_path: str, row: dict) -> None:
@@ -162,8 +183,9 @@ def append_row(csv_path: str, row: dict) -> None:
 
 
 def main() -> None:
+    logging.basicConfig(level=logging.INFO, format="%(message)s")
     args = parse_args()
-    metrics = evaluate(args.adapter, args.limit, args.batch_size)
+    metrics, records = evaluate(args.adapter, args.limit, args.batch_size)
     row = {
         "run_id": args.run_id,
         "adapter": args.adapter or "",
@@ -171,11 +193,22 @@ def main() -> None:
         **metrics,
     }
     append_row(args.output, row)
-    print(
-        f"[{args.run_id}] accuracy={metrics['accuracy']:.4f} "
-        f"({metrics['n_correct']}/{metrics['n_problems']}) "
-        f"in {metrics['elapsed_sec']}s -> appended to {args.output}"
+    logger.info(
+        "[%s] accuracy=%.4f (%d/%d) in %.1fs -> appended to %s",
+        args.run_id, metrics["accuracy"], metrics["n_correct"],
+        metrics["n_problems"], metrics["elapsed_sec"], args.output,
     )
+
+    if args.save_predictions:
+        pred_path = Path(
+            args.predictions_path
+            or f"results/predictions/{args.run_id}.jsonl"
+        )
+        write_predictions_jsonl(
+            pred_path, args.run_id, records, extractor_version=ANSWER_EXTRACTOR_VERSION
+        )
+        logger.info("[%s] wrote %d predictions to %s",
+                    args.run_id, len(records), pred_path)
 
 
 if __name__ == "__main__":

@@ -27,6 +27,15 @@ wandb/
 *.bin
 *.safetensors
 
+# Per-question eval dumps (~few MB each, regenerable from Colab).
+# Treated as derived data, not source-of-truth. Pull individually if needed.
+results/predictions/*.jsonl
+
+# Raw run bundles pulled from Drive (zips + adapter weights).
+# Only the curated subset under results/first-round/extracted/ is committed.
+results/first-round/*.zip
+results/first-round/finetune-gsm8k-runs/
+
 # OS
 .DS_Store
 Thumbs.db
